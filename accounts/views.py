@@ -47,3 +47,38 @@ def register(request):
             messages.success(request, 'Вы успешно зарегистрированы.')
             return redirect('login')
     return render(request, 'accounts/register.html')
+
+from django.contrib.auth.decorators import login_required
+from .forms import DesignRequestForm
+
+@login_required
+def create_request(request):
+    if request.method == 'POST':
+        form = DesignRequestForm(request.POST, request.FILES)
+        if form.is_valid():
+            design_request = form.save(commit=False)
+            design_request.user = request.user  # Привязка к текущему пользователю
+            design_request.save()
+            return redirect('view_requests')  # Перенаправление на страницу просмотра заявок
+    else:
+        form = DesignRequestForm()
+    return render(request, 'accounts/create_request.html', {'form': form})
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+
+@login_required
+def view_requests(request):
+    requests = request.user.design_requests.all()  # Получаем заявки текущего пользователя
+    return render(request, 'accounts/view_requests.html', {'requests': requests})
+from django.http import HttpResponseForbidden
+from django.shortcuts import get_object_or_404
+
+@login_required
+def delete_request(request, pk):
+    design_request = get_object_or_404(request.user.design_requests, pk=pk)
+    if design_request.status != 'new':
+        return HttpResponseForbidden("Нельзя удалить заявку, которая уже в работе или завершена.")
+    if request.method == 'POST':
+        design_request.delete()
+        return redirect('view_requests')
+    return render(request, 'accounts/delete_request.html', {'design_request': design_request})
