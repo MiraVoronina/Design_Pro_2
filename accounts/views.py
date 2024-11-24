@@ -2,6 +2,10 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden
+from django.shortcuts import get_object_or_404
+from .forms import DesignRequestForm
 
 def home(request):
     return render(request, 'accounts/home.html')
@@ -48,9 +52,6 @@ def register(request):
             return redirect('login')
     return render(request, 'accounts/register.html')
 
-from django.contrib.auth.decorators import login_required
-from .forms import DesignRequestForm
-
 @login_required
 def create_request(request):
     if request.method == 'POST':
@@ -63,15 +64,19 @@ def create_request(request):
     else:
         form = DesignRequestForm()
     return render(request, 'accounts/create_request.html', {'form': form})
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
 
 @login_required
 def view_requests(request):
-    requests = request.user.design_requests.all()  # Получаем заявки текущего пользователя
-    return render(request, 'accounts/view_requests.html', {'requests': requests})
-from django.http import HttpResponseForbidden
-from django.shortcuts import get_object_or_404
+    status_filter = request.GET.get('status')  # Получаем выбранный статус из запроса
+    requests = request.user.design_requests.all()  # Все заявки пользователя
+
+    if status_filter in ['new', 'in_progress', 'completed']:  # Проверяем валидные статусы
+        requests = requests.filter(status=status_filter)
+
+    return render(request, 'accounts/view_requests.html', {
+        'requests': requests,           # Отфильтрованные заявки
+        'status_filter': status_filter, # Выбранный статус
+    })
 
 @login_required
 def delete_request(request, pk):
