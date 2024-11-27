@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Изменение статуса заявки</title>
+</head>
+<body>
+    <h1>Изменение статуса заявки: {{ design_request.title }}</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="status">Статус:</label>
+        <select id="status" name="status">
+            <option value="in_progress" {% if design_request.status == 'in_progress' %}selected{% endif %}>Принято в работу</option>
+            <option value="completed" {% if design_request.status == 'completed' %}selected{% endif %}>Выполнено</option>
+        </select>
+        <br>
+        <label for="comment">Комментарий (только для "Принято в работу"):</label>
+        <textarea id="comment" name="comment">{{ design_request.comment }}</textarea>
+        <br>
+        <label for="image">Изображение (только для "Выполнено"):</label>
+        <input type="file" id="image" name="image">
+        <br>
+        <button type="submit">Обновить статус</button>
+    </form>
+</body>
+</html>

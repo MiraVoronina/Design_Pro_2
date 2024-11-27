@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои заявки</title>
+</head>
+<body>
+    <h1>Мои заявки</h1>
+    <a href="{% url 'create_request' %}">Создать заявку</a>
+    <form method="get">
+        <label for="status">Фильтр по статусу:</label>
+        <select id="status" name="status">
+            <option value="">Все</option>
+            <option value="new" {% if request.GET.status == 'new' %}selected{% endif %}>Новая</option>
+            <option value="in_progress" {% if request.GET.status == 'in_progress' %}selected{% endif %}>Принято в работу</option>
+            <option value="completed" {% if request.GET.status == 'completed' %}selected{% endif %}>Выполнено</option>
+        </select>
+        <button type="submit">Фильтровать</button>
+    </form>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Временная метка</th>
+                <th>Название заявки</th>
+                <th>Описание заявки</th>
+                <th>Категория</th>
+                <th>Статус</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in requests %}
+            <tr>
+                <td>{{ request.created_at }}</td>
+                <td>{{ request.title }}</td>
+                <td>{{ request.description }}</td>
+                <td>{{ request.category }}</td>
+                <td>{{ request.get_status_display }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">Заявок нет.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

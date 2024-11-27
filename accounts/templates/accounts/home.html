@@ -6,8 +6,45 @@
     <title>Главная страница</title>
 </head>
 <body>
-    <h1>Добро пожаловать на главную страницу!</h1>
-    <p>Здесь будет контент вашего сайта.</p>
-    <p><a href="{% url 'login' %}">Авторизация</a> | <a href="{% url 'register' %}">Регистрация</a></p>
+    <h1>Добро пожаловать!</h1>
+    {% if user.is_authenticated %}
+        <p>Вы вошли как {{ user.username }}</p>
+        <a href="{% url 'user_requests' %}">Мои заявки</a>
+        <a href="{% url 'logout' %}">Выйти</a>
+    {% else %}
+        <a href="{% url 'login' %}">Войти</a> или <a href="{% url 'register' %}">Зарегистрироваться</a>
+    {% endif %}
+    <p>Количество заявок в статусе "Принято в работу": {{ in_progress_count }}</p>
+    <h2>Последние выполненные заявки</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Временная метка</th>
+                <th>Название</th>
+                <th>Категория</th>
+                <th>Фотография</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in completed_requests %}
+            <tr>
+                <td>{{ request.created_at }}</td>
+                <td>{{ request.title }}</td>
+                <td>{{ request.category }}</td>
+                <td>
+                    {% if request.image %}
+                    <img src="{{ request.image.url }}" alt="{{ request.title }}" style="max-width: 150px;">
+                    {% else %}
+                    Нет изображения
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">Нет выполненных заявок.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </body>
 </html>

@@ -3,14 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Создание заявки</title>
+    <title>Создать заявку</title>
 </head>
 <body>
-    <h1>Создать новую заявку</h1>
+    <h1>Создать заявку</h1>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Создать заявку</button>
+        <label for="title">Название:</label>
+        <input type="text" id="title" name="title" required>
+        <br>
+        <label for="description">Описание:</label>
+        <textarea id="description" name="description" required></textarea>
+        <br>
+        <label for="category">Категория:</label>
+        <input type="text" id="category" name="category" required>
+        <br>
+        <label for="image">Изображение (необязательно):</label>
+        <input type="file" id="image" name="image">
+        <br>
+        <button type="submit">Создать</button>
     </form>
+    <a href="{% url 'user_requests' %}">Назад к моим заявкам</a>
+
+    {% if messages %}
+    <ul>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
 </body>
 </html>
