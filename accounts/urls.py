@@ -9,5 +9,6 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(next_page='home'), name='logout'),  # Выход
     path('requests/', views.user_requests, name='user_requests'),  # Просмотр заявок
     path('requests/create/', views.create_request, name='create_request'),  # Создание заявки
-    path('requests/<int:request_id>/update/', views.update_request_status, name='update_request_status'),  # Смена статуса заявки
+    path('requests/<int:request_id>/delete/', views.delete_request, name='delete_request'),  # Удаление заявки
+    path('requests/<int:request_id>/update/', views.update_request_status, name='update_request_status'),  # Смена статуса
 ]
