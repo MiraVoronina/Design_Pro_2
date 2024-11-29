@@ -36,8 +36,13 @@ def login_user(request):
     return render(request, 'accounts/login.html')
 
 
+from django.contrib.auth import authenticate, login
+
+from django.contrib.auth import authenticate, login
+from django.contrib import messages
+
 def register_user(request):
-    """Регистрация пользователя с валидацией полей."""
+    """Регистрация пользователя с автоматическим входом."""
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -54,12 +59,12 @@ def register_user(request):
             messages.error(request, 'Пароли не совпадают.')
             return redirect('register')
 
-        if not re.match(r'^[a-zA-Z0-9_]+$', username):
-            messages.error(request, 'Логин должен содержать только латинские буквы и цифры.')
+        if not re.match(r'^[a-zA-Z0-9_-]+$', username):
+            messages.error(request, 'Логин должен содержать только латинские буквы, цифры, дефис или подчёркивание.')
             return redirect('register')
 
-        if not re.match(r'^[а-яА-ЯёЁ\s]+$', full_name):
-            messages.error(request, 'ФИО должно содержать только кириллицу.')
+        if not re.match(r'^[а-яА-ЯёЁ\s-]+$', full_name):
+            messages.error(request, 'ФИО должно содержать только кириллицу, пробелы или дефисы.')
             return redirect('register')
 
         try:
@@ -76,11 +81,16 @@ def register_user(request):
             messages.error(request, 'Пользователь с таким email уже существует.')
             return redirect('register')
 
+        # Создание пользователя
         user = User.objects.create_user(username=username, password=password, email=email)
         user.first_name = full_name
         user.save()
-        messages.success(request, 'Регистрация успешна. Теперь вы можете войти.')
-        return redirect('login')
+
+        # Автоматический вход пользователя
+        user = authenticate(username=username, password=password)
+        if user:
+            login(request, user)
+            return redirect('home')  # Перенаправление на главную страницу
 
     return render(request, 'accounts/register.html')
 

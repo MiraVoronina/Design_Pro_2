@@ -1,50 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <title>Главная страница</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .button {
+            background-color: #f0f0f0;
+            color: black;
+            border: 1px solid #ccc;
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 5px;
+            text-decoration: none;
+        }
+        .button:hover {
+            background-color: #e0e0e0;
+        }
+        .logout-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
     <h1>Добро пожаловать!</h1>
     {% if user.is_authenticated %}
         <p>Вы вошли как {{ user.username }}</p>
-        <a href="{% url 'user_requests' %}">Мои заявки</a>
-        <a href="{% url 'logout' %}">Выйти</a>
+        <div class="logout-container">
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="button">Выйти</button>
+            </form>
+        </div>
+        <a href="{% url 'user_requests' %}" class="button">Мои заявки</a>
+        <p>Количество заявок в статусе "Принято в работу": {{ in_progress_count }}</p>
     {% else %}
-        <a href="{% url 'login' %}">Войти</a> или <a href="{% url 'register' %}">Зарегистрироваться</a>
+        <div>
+            <a href="{% url 'login' %}" class="button">Авторизация</a>
+            <a href="{% url 'register' %}" class="button">Регистрация</a>
+        </div>
     {% endif %}
-    <p>Количество заявок в статусе "Принято в работу": {{ in_progress_count }}</p>
+
     <h2>Последние выполненные заявки</h2>
     <table>
-        <thead>
-            <tr>
-                <th>Временная метка</th>
-                <th>Название</th>
-                <th>Категория</th>
-                <th>Фотография</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for request in completed_requests %}
-            <tr>
-                <td>{{ request.created_at }}</td>
-                <td>{{ request.title }}</td>
-                <td>{{ request.category }}</td>
-                <td>
-                    {% if request.image %}
-                    <img src="{{ request.image.url }}" alt="{{ request.title }}" style="max-width: 150px;">
-                    {% else %}
-                    Нет изображения
-                    {% endif %}
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="4">Нет выполненных заявок.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
+        <tr>
+            <th>Временная метка</th>
+            <th>Название</th>
+            <th>Категория</th>
+            <th>Фотография</th>
+        </tr>
+        {% for request in completed_requests %}
+        <tr>
+            <td>{{ request.created_at }}</td>
+            <td>{{ request.title }}</td>
+            <td>{{ request.category }}</td>
+            <td>
+                {% if request.image %}
+                <img src="{{ request.image.url }}" alt="Image" width="100">
+                {% else %}
+                Нет фото
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">Нет выполненных заявок.</td>
+        </tr>
+        {% endfor %}
     </table>
 </body>
 </html>
